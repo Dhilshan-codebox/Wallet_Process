@@ -1,29 +1,21 @@
 package com.paypal.wallet.controller;
 
 import com.paypal.wallet.model.User;
-import com.paypal.wallet.repository.UserRepository;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import com.paypal.wallet.service.AuthService;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
 
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
+    private final AuthService authService;
 
-    public AuthController(UserRepository userRepository, PasswordEncoder passwordEncoder) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
+    public AuthController(AuthService authService) {
+        this.authService = authService;
     }
 
     @PostMapping("/register")
     public String register(@RequestBody User user) {
-
-        // Encrypt password before saving
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-
-        userRepository.save(user);
-        return "User registered successfully!";
+        return authService.register(user);
     }
 }
