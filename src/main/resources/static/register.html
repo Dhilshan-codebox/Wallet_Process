@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PayWallet — Create Account</title>
+  <meta name="description" content="Create your PayWallet digital wallet account" />
+  <link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body>
+  <div class="auth-page">
+    <div class="auth-card fade-in-up">
+      <div class="auth-logo">
+        <div class="logo-icon-lg">💳</div>
+        <h1>Create Account</h1>
+        <p>Join PayWallet today</p>
+      </div>
+
+      <form id="register-form" novalidate>
+        <div class="form-group">
+          <label for="reg-name">Full Name</label>
+          <input type="text" id="reg-name" placeholder="John Doe" required autocomplete="name" />
+        </div>
+        <div class="form-group">
+          <label for="reg-email">Email Address</label>
+          <input type="email" id="reg-email" placeholder="you@example.com" required autocomplete="email" />
+        </div>
+        <div class="grid-2">
+          <div class="form-group">
+            <label for="reg-password">Password</label>
+            <input type="password" id="reg-password" placeholder="Min. 6 characters" required />
+          </div>
+          <div class="form-group">
+            <label for="reg-confirm">Confirm Password</label>
+            <input type="password" id="reg-confirm" placeholder="Re-enter password" required />
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary btn-full">Create Account</button>
+      </form>
+
+      <p class="auth-divider">Already have an account? <a href="/index.html">Sign in</a></p>
+    </div>
+  </div>
+
+  <div id="toast-container"></div>
+  <script type="module" src="/js/auth.js"></script>
+</body>
+</html>

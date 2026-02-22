@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PayWallet — Dashboard</title>
+    <link rel="stylesheet" href="/css/styles.css" />
+</head>
+
+<body>
+    <!-- Mobile hamburger -->
+    <button id="hamburger" class="hamburger" aria-label="Menu">
+        <span></span><span></span><span></span>
+    </button>
+    <div id="sidebar-backdrop" class="overlay-backdrop"></div>
+
+    <div class="layout">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-logo">
+                <div class="logo-icon">💳</div>
+                <div>
+                    <div class="logo-text">PayWallet</div>
+                    <div class="logo-sub">Digital Wallet</div>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="/dashboard.html" class="nav-item active"><span class="nav-icon">🏠</span> Dashboard</a>
+                <a href="/transfer.html" class="nav-item"><span class="nav-icon">💸</span> Send Money</a>
+                <a href="/history.html" class="nav-item"><span class="nav-icon">📋</span> History</a>
+                <a href="/profile.html" class="nav-item"><span class="nav-icon">👤</span> Profile</a>
+                <a href="/admin.html" id="nav-admin" class="nav-item hidden"><span class="nav-icon">⚙️</span> Admin</a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-pill">
+                    <div class="user-avatar" id="sidebar-avatar">U</div>
+                    <div class="user-info">
+                        <div class="user-name" id="sidebar-user-name">Loading…</div>
+                        <div class="user-role" id="sidebar-user-role">USER</div>
+                    </div>
+                    <button onclick="import('/js/api.js').then(m=>m.logout())"
+                        style="background:none;border:none;cursor:pointer;font-size:1.1rem;padding:0.25rem"
+                        title="Sign Out">🚪</button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="page-header">
+                <h1>Dashboard</h1>
+                <p>Welcome back! Here's your financial overview.</p>
+            </div>
+
+            <!-- Balance Card -->
+            <div class="balance-card mb-3">
+                <div class="balance-label">Total Balance</div>
+                <div class="balance-amount"><span>₹</span><span id="balance-amount">—</span></div>
+                <div style="margin-top:1rem;display:flex;gap:0.75rem;flex-wrap:wrap">
+                    <button id="open-deposit" class="btn btn-primary btn-sm">＋ Add Money</button>
+                    <a href="/transfer.html" class="btn btn-secondary btn-sm">💸 Send Money</a>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="quick-actions mb-3">
+                <a href="/transfer.html" class="quick-action-btn">
+                    <span class="icon">💸</span> Send Money
+                </a>
+                <a href="/history.html" class="quick-action-btn">
+                    <span class="icon">📋</span> History
+                </a>
+                <button id="open-deposit" class="quick-action-btn" style="border:none;background:none">
+                    <span class="icon">💰</span> Deposit
+                </button>
+                <a href="/profile.html" class="quick-action-btn">
+                    <span class="icon">👤</span> Profile
+                </a>
+            </div>
+
+            <!-- Recent Transactions -->
+            <div class="card">
+                <div class="flex items-center justify-between mb-2">
+                    <h3>Recent Transactions</h3>
+                    <a href="/history.html" class="btn btn-secondary btn-sm">View All</a>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>To / From</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recent-tbody">
+                            <tr>
+                                <td colspan="4" class="text-center"><span class="spinner"></span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Deposit Modal -->
+    <div id="deposit-modal" class="hidden"
+        style="position:fixed;inset:0;z-index:500;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px)">
+        <div class="card" style="width:100%;max-width:400px;animation:fadeInUp 0.3s ease">
+            <div class="flex items-center justify-between mb-2">
+                <h3>💰 Add Money</h3>
+                <button id="close-deposit"
+                    style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:1.4rem">&times;</button>
+            </div>
+            <form id="deposit-form">
+                <div class="form-group">
+                    <label for="deposit-amount">Amount (₹)</label>
+                    <input type="number" id="deposit-amount" placeholder="e.g. 500" min="1" required />
+                </div>
+                <button type="submit" class="btn btn-primary btn-full">Deposit</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="toast-container"></div>
+    <script type="module" src="/js/dashboard.js"></script>
+</body>
+
+</html>

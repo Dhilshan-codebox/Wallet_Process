@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PayWallet — Profile</title>
+    <link rel="stylesheet" href="/css/styles.css" />
+</head>
+
+<body>
+    <button id="hamburger" class="hamburger" aria-label="Menu">
+        <span></span><span></span><span></span>
+    </button>
+    <div id="sidebar-backdrop" class="overlay-backdrop"></div>
+
+    <div class="layout">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-logo">
+                <div class="logo-icon">💳</div>
+                <div>
+                    <div class="logo-text">PayWallet</div>
+                    <div class="logo-sub">Digital Wallet</div>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="/dashboard.html" class="nav-item"><span class="nav-icon">🏠</span> Dashboard</a>
+                <a href="/transfer.html" class="nav-item"><span class="nav-icon">💸</span> Send Money</a>
+                <a href="/history.html" class="nav-item"><span class="nav-icon">📋</span> History</a>
+                <a href="/profile.html" class="nav-item active"><span class="nav-icon">👤</span> Profile</a>
+                <a href="/admin.html" id="nav-admin" class="nav-item hidden"><span class="nav-icon">⚙️</span> Admin</a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-pill">
+                    <div class="user-avatar" id="sidebar-avatar">U</div>
+                    <div class="user-info">
+                        <div class="user-name" id="sidebar-user-name">Loading…</div>
+                        <div class="user-role" id="sidebar-user-role">USER</div>
+                    </div>
+                    <button onclick="import('/js/api.js').then(m=>m.logout())"
+                        style="background:none;border:none;cursor:pointer;font-size:1.1rem;padding:0.25rem"
+                        title="Sign Out">🚪</button>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="page-header">
+                <h1>My Profile 👤</h1>
+                <p>Manage your account details and security.</p>
+            </div>
+
+            <div style="max-width:600px;display:flex;flex-direction:column;gap:1.25rem">
+                <!-- Avatar Card -->
+                <div class="card" style="display:flex;align-items:center;gap:1.5rem">
+                    <div id="profile-avatar"
+                        style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent-dark));display:flex;align-items:center;justify-content:center;font-size:2rem;font-weight:700;flex-shrink:0">
+                        U</div>
+                    <div>
+                        <h2 id="profile-header-name" style="margin-bottom:0.25rem">Loading…</h2>
+                        <span class="badge badge-info" id="profile-header-role">USER</span>
+                        <div class="text-xs text-muted mt-1">Member since <span id="member-since">—</span></div>
+                    </div>
+                </div>
+
+                <!-- Edit Form -->
+                <div class="card">
+                    <h3 class="mb-2">Edit Profile</h3>
+                    <form id="profile-form" novalidate>
+                        <div class="form-group">
+                            <label for="prof-name">Full Name</label>
+                            <input type="text" id="prof-name" placeholder="Your name" />
+                        </div>
+                        <div class="form-group">
+                            <label for="prof-email">Email Address</label>
+                            <input type="email" id="prof-email" disabled style="opacity:0.6;cursor:not-allowed" />
+                        </div>
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label for="prof-password">New Password <span
+                                        style="color:var(--text-muted)">(optional)</span></label>
+                                <input type="password" id="prof-password" placeholder="Leave blank to keep" />
+                            </div>
+                            <div class="form-group">
+                                <label for="prof-confirm">Confirm Password</label>
+                                <input type="password" id="prof-confirm" placeholder="Re-enter new password" />
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">💾 Save Changes</button>
+                    </form>
+                </div>
+
+                <!-- Danger Zone -->
+                <div class="card" style="border-color:rgba(239,68,68,0.3);background:rgba(239,68,68,0.05)">
+                    <h3 style="color:var(--danger);margin-bottom:0.5rem">⚠️ Sign Out</h3>
+                    <p class="text-sm mb-2">You will be redirected to the login page.</p>
+                    <button onclick="import('/js/api.js').then(m=>m.logout())" class="btn btn-danger btn-sm">Sign
+                        Out</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="toast-container"></div>
+    <script type="module" src="/js/profile.js"></script>
+</body>
+
+</html>
