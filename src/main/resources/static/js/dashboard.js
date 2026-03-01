@@ -1,4 +1,4 @@
-import { apiFetch, getToken, getUser, requireAuth, showToast, populateSidebar, initMobileMenu } from './api.js';
+import { apiFetch, getToken, getUser, setUser, requireAuth, showToast, populateSidebar, initMobileMenu } from './api.js';
 
 requireAuth();
 populateSidebar();
@@ -11,16 +11,37 @@ const currency = user.currency || 'USD';
 const sym = SYMBOLS[currency] || '$';
 const wallet = user.walletAddress || '';
 
-// ─── Balance card ─────────────────────────────────────────────────────────────
-const balance = parseFloat(user.balance || 0);
-document.getElementById('balance-amount').textContent =
-    balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-document.getElementById('balance-currency-symbol').textContent = sym;
-document.getElementById('balance-currency-badge').textContent = currency;
+// ─── Live Balance (always fetched fresh from server) ─────────────────────────
+async function loadLiveBalance() {
+    try {
+        const profile = await apiFetch('/api/user/profile');
+        const liveBal = parseFloat(profile.balance || 0);
 
-if (wallet) {
-    document.getElementById('wallet-address-short').textContent = wallet.substring(0, 10) + '…';
+        // Keep localStorage in sync so sidebar & profile pages stay current
+        const stored = getUser() || {};
+        stored.balance = liveBal;
+        setUser(stored);
+
+        document.getElementById('balance-amount').textContent =
+            liveBal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        document.getElementById('balance-currency-symbol').textContent = sym;
+        document.getElementById('balance-currency-badge').textContent = currency;
+
+        if (profile.walletAddress) {
+            const addrEl = document.getElementById('wallet-address-short');
+            if (addrEl) addrEl.textContent = profile.walletAddress.substring(0, 10) + '\u2026';
+        }
+    } catch (err) {
+        // Fallback to cached value if live fetch fails
+        const fallback = parseFloat(user.balance || 0);
+        document.getElementById('balance-amount').textContent =
+            fallback.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        document.getElementById('balance-currency-symbol').textContent = sym;
+        document.getElementById('balance-currency-badge').textContent = currency;
+    }
 }
+
+loadLiveBalance();
 
 // ─── 2FA security banner ──────────────────────────────────────────────────────
 if (!user.twoFactorEnabled) {

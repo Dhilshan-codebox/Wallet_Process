@@ -12,12 +12,14 @@ public class TransactionDTO {
     private String description;
     private String status;
     private LocalDateTime transactionDate;
-    
+    private String blockchainHash;
+
     // Constructor
-    public TransactionDTO(Long id, String senderName, String senderEmail, 
-                         String receiverName, String receiverEmail, 
-                         Double amount, String description, 
-                         String status, LocalDateTime transactionDate) {
+    public TransactionDTO(Long id, String senderName, String senderEmail,
+            String receiverName, String receiverEmail,
+            Double amount, String description,
+            String status, LocalDateTime transactionDate,
+            String blockchainHash) {
         this.id = id;
         this.senderName = senderName;
         this.senderEmail = senderEmail;
@@ -27,35 +29,87 @@ public class TransactionDTO {
         this.description = description;
         this.status = status;
         this.transactionDate = transactionDate;
+        this.blockchainHash = blockchainHash;
     }
-    
+
     // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-    
-    public String getSenderName() { return senderName; }
-    public void setSenderName(String senderName) { this.senderName = senderName; }
-    
-    public String getSenderEmail() { return senderEmail; }
-    public void setSenderEmail(String senderEmail) { this.senderEmail = senderEmail; }
-    
-    public String getReceiverName() { return receiverName; }
-    public void setReceiverName(String receiverName) { this.receiverName = receiverName; }
-    
-    public String getReceiverEmail() { return receiverEmail; }
-    public void setReceiverEmail(String receiverEmail) { this.receiverEmail = receiverEmail; }
-    
-    public Double getAmount() { return amount; }
-    public void setAmount(Double amount) { this.amount = amount; }
-    
-    public String getDescription() { return description; }
-    public void setDescription(String description) { this.description = description; }
-    
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
-    
-    public LocalDateTime getTransactionDate() { return transactionDate; }
-    public void setTransactionDate(LocalDateTime transactionDate) { 
-        this.transactionDate = transactionDate; 
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getSenderName() {
+        return senderName;
+    }
+
+    public void setSenderName(String senderName) {
+        this.senderName = senderName;
+    }
+
+    public String getSenderEmail() {
+        return senderEmail;
+    }
+
+    public void setSenderEmail(String senderEmail) {
+        this.senderEmail = senderEmail;
+    }
+
+    public String getReceiverName() {
+        return receiverName;
+    }
+
+    public void setReceiverName(String receiverName) {
+        this.receiverName = receiverName;
+    }
+
+    public String getReceiverEmail() {
+        return receiverEmail;
+    }
+
+    public void setReceiverEmail(String receiverEmail) {
+        this.receiverEmail = receiverEmail;
+    }
+
+    public Double getAmount() {
+        return amount;
+    }
+
+    public void setAmount(Double amount) {
+        this.amount = amount;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public LocalDateTime getTransactionDate() {
+        return transactionDate;
+    }
+
+    public void setTransactionDate(LocalDateTime transactionDate) {
+        this.transactionDate = transactionDate;
+    }
+
+    public String getBlockchainHash() {
+        return blockchainHash;
+    }
+
+    public void setBlockchainHash(String blockchainHash) {
+        this.blockchainHash = blockchainHash;
     }
 }
