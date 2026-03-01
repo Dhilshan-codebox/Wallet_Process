@@ -3,7 +3,7 @@ import { apiFetch, getToken, setToken, setUser, getUser, requireGuest, showToast
 // Redirect if already logged in
 requireGuest();
 
-const API_BASE = 'http://localhost:8081';
+const API_BASE = '';  // Relative paths — works on any port/deployment
 const loginForm = document.getElementById('login-form');
 const otpPanel = document.getElementById('otp-panel');
 let pendingEmail = '';

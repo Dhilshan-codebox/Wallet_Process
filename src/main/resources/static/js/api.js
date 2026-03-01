@@ -2,7 +2,7 @@
 //  api.js — Central API helper with JWT support
 // ============================================================
 
-const API_BASE = 'http://localhost:8080';
+const API_BASE = '';  // Relative paths — works on any port/deployment
 
 // ── Token management ──
 export const getToken = () => localStorage.getItem('wallet_token');

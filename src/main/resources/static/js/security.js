@@ -26,26 +26,19 @@ render2FAState(!!user.twoFactorEnabled);
 
 document.getElementById('enable-2fa-btn')?.addEventListener('click', async () => {
     try {
-        const res = await fetch(`http://localhost:8081/auth/2fa/enable`, {
-            method: 'POST',
-            headers: { 'Authorization': `Bearer ${localStorage.getItem('wallet_token')}` }
-        });
-        const txt = await res.text();
-        if (res.ok) { render2FAState(true); showToast(txt || '2FA enabled ✅', 'success'); }
-        else { showToast(txt || 'Failed to enable 2FA', 'error'); }
-    } catch { showToast('Network error', 'error'); }
+        const txt = await apiFetch('/auth/2fa/enable', { method: 'POST' });
+        render2FAState(true);
+        showToast(typeof txt === 'string' ? txt : '2FA enabled ✅', 'success');
+    } catch (e) { showToast(e.message || 'Failed to enable 2FA', 'error'); }
 });
 
 document.getElementById('disable-2fa-btn')?.addEventListener('click', async () => {
     if (!confirm('Disable 2FA? Your account will be less secure.')) return;
     try {
-        const res = await fetch(`http://localhost:8081/auth/2fa/disable`, {
-            method: 'POST',
-            headers: { 'Authorization': `Bearer ${localStorage.getItem('wallet_token')}` }
-        });
-        if (res.ok) { render2FAState(false); showToast('2FA disabled', 'success'); }
-        else { showToast('Failed to disable 2FA', 'error'); }
-    } catch { showToast('Network error', 'error'); }
+        const txt = await apiFetch('/auth/2fa/disable', { method: 'POST' });
+        render2FAState(false);
+        showToast(typeof txt === 'string' ? txt : '2FA disabled', 'success');
+    } catch (e) { showToast(e.message || 'Failed to disable 2FA', 'error'); }
 });
 
 // ─── Wallet Address ───────────────────────────────────────────────────────────

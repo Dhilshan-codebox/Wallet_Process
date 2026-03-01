@@ -4,7 +4,7 @@ requireAuth();
 populateSidebar();
 initMobileMenu();
 
-const API_BASE = 'http://localhost:8080';
+const API_BASE = '';  // Relative paths — works on any port/deployment
 const user = getUser() || {};
 const SYMBOLS = { USD: '$', EUR: '€', GBP: '£', JPY: '¥', INR: '₹', CAD: 'C$', AUD: 'A$', SGD: 'S$', CHF: 'Fr', CNY: '¥' };
 const userCurrency = user.currency || 'USD';
