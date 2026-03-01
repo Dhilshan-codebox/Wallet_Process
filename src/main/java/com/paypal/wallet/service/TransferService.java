@@ -73,9 +73,10 @@ public class TransferService {
         double amount = request.getAmount();
 
         // ---- Phase 1: Transaction Limit Checks ----
-        double effectiveSingleLimit = sender.getSingleTransactionLimit() != null
-                ? sender.getSingleTransactionLimit()
-                : singleTransactionLimit;
+        double effectiveSingleLimit = (sender.getSingleTransactionLimit() != null
+                && sender.getSingleTransactionLimit() > 0)
+                        ? sender.getSingleTransactionLimit()
+                        : singleTransactionLimit;
         if (amount > effectiveSingleLimit) {
             return "Transaction blocked: amount $" + amount + " exceeds your single-transaction limit of $"
                     + effectiveSingleLimit;
@@ -87,9 +88,10 @@ public class TransferService {
             sender.setDailySpent(0.0);
         }
 
-        double effectiveDailyLimit = sender.getDailyTransactionLimit() != null
-                ? sender.getDailyTransactionLimit()
-                : dailyTransactionLimit;
+        double effectiveDailyLimit = (sender.getDailyTransactionLimit() != null
+                && sender.getDailyTransactionLimit() > 0)
+                        ? sender.getDailyTransactionLimit()
+                        : dailyTransactionLimit;
         double projectedDailySpent = (sender.getDailySpent() != null ? sender.getDailySpent() : 0.0) + amount;
 
         if (projectedDailySpent > effectiveDailyLimit) {
