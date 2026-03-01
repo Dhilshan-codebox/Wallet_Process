@@ -1,5 +1,7 @@
 package com.paypal.wallet.controller;
 
+import com.paypal.wallet.dto.BulkTransferRequest;
+import com.paypal.wallet.dto.BulkTransferResultDTO;
 import com.paypal.wallet.dto.TransactionDTO;
 import com.paypal.wallet.dto.TransactionRequest;
 import com.paypal.wallet.service.TransferService;
@@ -14,13 +16,13 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/transfer")
 public class TransferController {
-    
+
     private final TransferService transferService;
-    
+
     public TransferController(TransferService transferService) {
         this.transferService = transferService;
     }
-    
+
     // ============= TRANSFER MONEY =============
     @PostMapping
     public ResponseEntity<String> transfer(@RequestBody TransactionRequest request) {
@@ -31,7 +33,23 @@ public class TransferController {
             return ResponseEntity.badRequest().body("Transaction failed: " + e.getMessage());
         }
     }
-    
+
+    // ============= BULK / MULTI TRANSFER =============
+    @PostMapping("/bulk")
+    public ResponseEntity<List<BulkTransferResultDTO>> bulkTransfer(
+            @RequestBody BulkTransferRequest request) {
+        try {
+            if (request.getItems() == null || request.getItems().isEmpty()) {
+                return ResponseEntity.badRequest().body(null);
+            }
+            List<BulkTransferResultDTO> results = transferService.bulkTransfer(request.getSenderId(),
+                    request.getItems());
+            return ResponseEntity.ok(results);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
+
     // ============= GET ALL TRANSACTIONS =============
     @GetMapping("/history")
     public ResponseEntity<List<TransactionDTO>> getTransactionHistory() {
@@ -42,7 +60,7 @@ public class TransferController {
             return ResponseEntity.badRequest().body(null);
         }
     }
-    
+
     // ============= GET TRANSACTIONS WITH PAGINATION =============
     @GetMapping("/history/paginated")
     public ResponseEntity<Page<TransactionDTO>> getTransactionsPaginated(
@@ -55,7 +73,7 @@ public class TransferController {
             return ResponseEntity.badRequest().body(null);
         }
     }
-    
+
     // ============= FILTER BY DATE RANGE =============
     @GetMapping("/history/date-range")
     public ResponseEntity<List<TransactionDTO>> getTransactionsByDateRange(
@@ -68,7 +86,7 @@ public class TransferController {
             return ResponseEntity.badRequest().body(null);
         }
     }
-    
+
     // ============= FILTER BY STATUS =============
     @GetMapping("/history/status/{status}")
     public ResponseEntity<List<TransactionDTO>> getTransactionsByStatus(@PathVariable String status) {
@@ -79,7 +97,7 @@ public class TransferController {
             return ResponseEntity.badRequest().body(null);
         }
     }
-    
+
     // ============= SORT BY AMOUNT =============
     @GetMapping("/history/sort-by-amount")
     public ResponseEntity<List<TransactionDTO>> getTransactionsSortedByAmount(
@@ -91,7 +109,7 @@ public class TransferController {
             return ResponseEntity.badRequest().body(null);
         }
     }
-    
+
     // ============= GET TRANSACTION BY ID ============= ✅ ADD THIS
     @GetMapping("/{id}")
     public ResponseEntity<TransactionDTO> getTransactionById(@PathVariable Long id) {
@@ -102,7 +120,7 @@ public class TransferController {
             return ResponseEntity.badRequest().body(null);
         }
     }
-    
+
     // ============= CANCEL TRANSACTION ============= ✅ ADD THIS
     @PutMapping("/{id}/cancel")
     public ResponseEntity<String> cancelTransaction(@PathVariable Long id) {

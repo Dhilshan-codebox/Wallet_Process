@@ -1,5 +1,7 @@
 package com.paypal.wallet.service;
 
+import com.paypal.wallet.dto.BulkTransferItem;
+import com.paypal.wallet.dto.BulkTransferResultDTO;
 import com.paypal.wallet.dto.TransactionDTO;
 import com.paypal.wallet.dto.TransactionRequest;
 import com.paypal.wallet.model.Transaction;
@@ -189,6 +191,61 @@ public class TransferService {
         }
 
         return message;
+    }
+
+    // ============================================================
+    // BULK / MULTI TRANSFER
+    // ============================================================
+
+    /**
+     * Sends money to multiple recipients simultaneously.
+     * Each transfer is processed independently — a failure on one
+     * item does NOT stop the remaining transfers.
+     */
+    @Transactional
+    public List<BulkTransferResultDTO> bulkTransfer(Long senderId, List<BulkTransferItem> items) {
+        List<BulkTransferResultDTO> results = new java.util.ArrayList<>();
+
+        for (BulkTransferItem item : items) {
+            String receiverEmail = item.getReceiverEmail();
+            Double amount = item.getAmount();
+            String description = item.getDescription();
+
+            try {
+                // Resolve receiver ID from email
+                User receiver = userRepository.findByEmail(receiverEmail)
+                        .orElseThrow(() -> new RuntimeException("User not found: " + receiverEmail));
+
+                TransactionRequest req = new TransactionRequest();
+                req.setSenderId(senderId);
+                req.setReceiverId(receiver.getId());
+                req.setAmount(amount);
+                req.setDescription(description);
+
+                String result = transfer(req);
+
+                // Extract blockchain hash from result string if present
+                String hash = null;
+                java.util.regex.Matcher m = java.util.regex.Pattern
+                        .compile("[0-9a-f]{64}").matcher(result);
+                if (m.find())
+                    hash = m.group();
+
+                boolean success = result.startsWith("Transaction successful") ||
+                        result.contains("successful");
+                results.add(new BulkTransferResultDTO(
+                        receiverEmail, amount,
+                        success ? "SUCCESS" : "FAILED",
+                        result, hash));
+
+            } catch (Exception e) {
+                results.add(new BulkTransferResultDTO(
+                        receiverEmail, amount,
+                        "FAILED", e.getMessage(), null));
+            }
+        }
+
+        return results;
     }
 
     // Get all transactions for current user

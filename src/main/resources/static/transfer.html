@@ -6,6 +6,102 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>PayWallet — Send Money</title>
     <link rel="stylesheet" href="/css/styles.css" />
+    <style>
+        .tab-bar {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 0.65rem 1rem;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: var(--card-bg);
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 0.88rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #6366f1, #a78bfa);
+            border-color: transparent;
+            color: #fff;
+        }
+
+        .recipient-row {
+            display: grid;
+            grid-template-columns: 1fr 110px auto;
+            gap: 0.6rem;
+            align-items: end;
+            margin-bottom: 0.75rem;
+        }
+
+        .remove-row-btn {
+            width: 38px;
+            height: 38px;
+            border-radius: 8px;
+            border: 1px solid var(--danger);
+            background: rgba(239, 68, 68, 0.08);
+            color: var(--danger);
+            cursor: pointer;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .add-row-btn {
+            width: 100%;
+            padding: 0.55rem;
+            border-radius: 8px;
+            border: 1px dashed rgba(99, 102, 241, 0.4);
+            background: rgba(99, 102, 241, 0.05);
+            color: var(--accent-light);
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.2s;
+            margin-top: 0.25rem;
+        }
+
+        .add-row-btn:hover {
+            background: rgba(99, 102, 241, 0.12);
+        }
+
+        .bulk-results-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.82rem;
+        }
+
+        .bulk-results-table th {
+            text-align: left;
+            padding: 0.5rem 0.6rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .bulk-results-table td {
+            padding: 0.55rem 0.6rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .status-badge-success {
+            color: var(--success);
+            font-weight: 700;
+        }
+
+        .status-badge-failed {
+            color: var(--danger);
+            font-weight: 700;
+        }
+    </style>
 </head>
 
 <body>
@@ -48,10 +144,10 @@
         <main class="main-content">
             <div class="page-header">
                 <h1>Send Money 💸</h1>
-                <p>Transfer funds to any PayWallet user instantly.</p>
+                <p>Transfer funds instantly — single or to multiple recipients at once.</p>
             </div>
 
-            <div style="max-width:560px;display:flex;flex-direction:column;gap:1.25rem">
+            <div style="max-width:600px;display:flex;flex-direction:column;gap:1.25rem">
 
                 <!-- Spending Limit Status -->
                 <div class="card"
@@ -73,81 +169,142 @@
                     </div>
                 </div>
 
-                <!-- Transfer Form -->
-                <div class="card" id="transfer-card">
-                    <h3 class="mb-2">Transfer Details</h3>
-                    <form id="transfer-form" novalidate>
-                        <div class="form-group">
-                            <label for="receiver-email">Recipient Email</label>
-                            <input type="email" id="receiver-email" placeholder="recipient@example.com" required />
-                        </div>
-                        <div class="grid-2">
-                            <div class="form-group">
-                                <label for="transfer-amount">Amount</label>
-                                <input type="number" id="transfer-amount" placeholder="e.g. 500" min="1" step="0.01"
-                                    required />
-                            </div>
-                            <div class="form-group">
-                                <label for="transfer-currency">Your Currency</label>
-                                <select id="transfer-currency"
-                                    style="width:100%;padding:0.65rem 0.9rem;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-size:0.9rem">
-                                    <option value="USD">🇺🇸 USD</option>
-                                    <option value="EUR">🇪🇺 EUR</option>
-                                    <option value="GBP">🇬🇧 GBP</option>
-                                    <option value="INR">🇮🇳 INR</option>
-                                    <option value="JPY">🇯🇵 JPY</option>
-                                    <option value="AUD">🇦🇺 AUD</option>
-                                    <option value="CAD">🇨🇦 CAD</option>
-                                    <option value="SGD">🇸🇬 SGD</option>
-                                    <option value="CHF">🇨🇭 CHF</option>
-                                    <option value="CNY">🇨🇳 CNY</option>
-                                </select>
-                            </div>
-                        </div>
-                        <!-- Live currency conversion preview -->
-                        <div id="conversion-preview" class="hidden"
-                            style="background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.25);border-radius:8px;padding:0.75rem 1rem;margin-bottom:1rem;font-size:0.85rem;color:var(--text-muted)">
-                            💱 Recipient will receive: <strong id="converted-preview"
-                                style="color:var(--accent-light)">—</strong>
-                        </div>
-                        <div class="form-group">
-                            <label for="transfer-desc">Description <span
-                                    style="color:var(--text-muted)">(optional)</span></label>
-                            <input type="text" id="transfer-desc" placeholder="Rent, lunch, etc." />
-                        </div>
-                        <button type="submit" class="btn btn-primary btn-full" style="margin-top:0.5rem">🚀 Send
-                            Money</button>
-                    </form>
+                <!-- Tab Switcher -->
+                <div class="tab-bar">
+                    <button class="tab-btn active" id="tab-single" onclick="switchTab('single')">
+                        💸 Single Transfer
+                    </button>
+                    <button class="tab-btn" id="tab-multi" onclick="switchTab('multi')">
+                        🔀 Multi Transfer
+                    </button>
                 </div>
 
-                <!-- Success Card -->
-                <div class="card hidden" id="success-card"
-                    style="text-align:center;padding:2.5rem;border-color:rgba(34,197,94,0.3);background:rgba(34,197,94,0.08)">
-                    <div style="font-size:3.5rem;margin-bottom:1rem">🎉</div>
-                    <h2 style="color:var(--success)">Transfer Successful!</h2>
-                    <p class="mt-1">You sent <strong id="success-amount" style="color:var(--text-primary)"></strong></p>
-                    <p class="text-sm text-muted mt-1">to <span id="success-to"
-                            style="color:var(--text-secondary)"></span></p>
-                    <!-- Blockchain hash -->
-                    <div id="blockchain-badge" class="hidden"
-                        style="margin-top:1rem;padding:0.6rem 1rem;background:rgba(99,102,241,0.12);border-radius:8px;font-size:0.72rem;font-family:monospace;color:var(--accent-light);word-break:break-all">
-                        ⛓️ TX: <span id="blockchain-hash-display"></span>
+                <!-- ─── SINGLE TRANSFER FORM ─────────────────────────────── -->
+                <div id="single-panel">
+                    <div class="card" id="transfer-card">
+                        <h3 class="mb-2">Transfer Details</h3>
+                        <form id="transfer-form" novalidate>
+                            <div class="form-group">
+                                <label for="receiver-email">Recipient Email</label>
+                                <input type="email" id="receiver-email" placeholder="recipient@example.com" required />
+                            </div>
+                            <div class="grid-2">
+                                <div class="form-group">
+                                    <label for="transfer-amount">Amount</label>
+                                    <input type="number" id="transfer-amount" placeholder="e.g. 500" min="1" step="0.01"
+                                        required />
+                                </div>
+                                <div class="form-group">
+                                    <label for="transfer-currency">Your Currency</label>
+                                    <select id="transfer-currency"
+                                        style="width:100%;padding:0.65rem 0.9rem;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-size:0.9rem">
+                                        <option value="USD">🇺🇸 USD</option>
+                                        <option value="EUR">🇪🇺 EUR</option>
+                                        <option value="GBP">🇬🇧 GBP</option>
+                                        <option value="INR">🇮🇳 INR</option>
+                                        <option value="JPY">🇯🇵 JPY</option>
+                                        <option value="AUD">🇦🇺 AUD</option>
+                                        <option value="CAD">🇨🇦 CAD</option>
+                                        <option value="SGD">🇸🇬 SGD</option>
+                                        <option value="CHF">🇨🇭 CHF</option>
+                                        <option value="CNY">🇨🇳 CNY</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div id="conversion-preview" class="hidden"
+                                style="background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.25);border-radius:8px;padding:0.75rem 1rem;margin-bottom:1rem;font-size:0.85rem;color:var(--text-muted)">
+                                💱 Recipient will receive: <strong id="converted-preview"
+                                    style="color:var(--accent-light)">—</strong>
+                            </div>
+                            <div class="form-group">
+                                <label for="transfer-desc">Description <span
+                                        style="color:var(--text-muted)">(optional)</span></label>
+                                <input type="text" id="transfer-desc" placeholder="Rent, lunch, etc." />
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-full" style="margin-top:0.5rem">🚀 Send
+                                Money</button>
+                        </form>
                     </div>
-                    <div style="display:flex;gap:1rem;justify-content:center;margin-top:1.5rem">
-                        <button id="new-transfer-btn" class="btn btn-primary">Send Again</button>
-                        <a href="/history.html" class="btn btn-secondary">View History</a>
+
+                    <!-- Success Card (Single) -->
+                    <div class="card hidden" id="success-card"
+                        style="text-align:center;padding:2.5rem;border-color:rgba(34,197,94,0.3);background:rgba(34,197,94,0.08)">
+                        <div style="font-size:3.5rem;margin-bottom:1rem">🎉</div>
+                        <h2 style="color:var(--success)">Transfer Successful!</h2>
+                        <p class="mt-1">You sent <strong id="success-amount" style="color:var(--text-primary)"></strong>
+                        </p>
+                        <p class="text-sm text-muted mt-1">to <span id="success-to"
+                                style="color:var(--text-secondary)"></span></p>
+                        <div id="blockchain-badge" class="hidden"
+                            style="margin-top:1rem;padding:0.6rem 1rem;background:rgba(99,102,241,0.12);border-radius:8px;font-size:0.72rem;font-family:monospace;color:var(--accent-light);word-break:break-all">
+                            ⛓️ TX: <span id="blockchain-hash-display"></span>
+                        </div>
+                        <div style="display:flex;gap:1rem;justify-content:center;margin-top:1.5rem">
+                            <button id="new-transfer-btn" class="btn btn-primary">Send Again</button>
+                            <a href="/history.html" class="btn btn-secondary">View History</a>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Info / How it works -->
+                <!-- ─── MULTI TRANSFER FORM ──────────────────────────────── -->
+                <div id="multi-panel" class="hidden">
+                    <div class="card">
+                        <h3 class="mb-2">Multi Transfer <span
+                                style="font-size:0.8rem;color:var(--text-muted);font-weight:400">— Send to multiple
+                                recipients at once</span></h3>
+
+                        <div id="recipients-list">
+                            <!-- Rows injected by JS -->
+                        </div>
+
+                        <button class="add-row-btn" id="add-recipient-btn">+ Add Recipient</button>
+
+                        <div
+                            style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+                            <span id="bulk-total-label" style="font-size:0.85rem;color:var(--text-muted)">Total:
+                                $0.00</span>
+                            <button id="send-all-btn" class="btn btn-primary" style="min-width:140px">🚀 Send
+                                All</button>
+                        </div>
+                    </div>
+
+                    <!-- Bulk Results Card -->
+                    <div class="card hidden" id="bulk-results-card"
+                        style="border-color:rgba(99,102,241,0.3);background:rgba(99,102,241,0.04)">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+                            <h3 style="margin:0">📊 Transfer Results</h3>
+                            <button id="bulk-new-btn" class="btn btn-secondary"
+                                style="padding:0.4rem 0.9rem;font-size:0.82rem">New Batch</button>
+                        </div>
+                        <div id="bulk-summary" style="display:flex;gap:1.5rem;margin-bottom:1rem;font-size:0.85rem">
+                        </div>
+                        <table class="bulk-results-table">
+                            <thead>
+                                <tr>
+                                    <th>Recipient</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                    <th>TX Hash</th>
+                                </tr>
+                            </thead>
+                            <tbody id="bulk-results-body"></tbody>
+                        </table>
+                        <div style="margin-top:1rem;text-align:center">
+                            <a href="/history.html" class="btn btn-secondary" style="font-size:0.85rem">View Full
+                                History</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Info card -->
                 <div class="card" style="border-color:rgba(99,102,241,0.25);background:rgba(99,102,241,0.06)">
                     <h4 style="color:var(--accent-light);margin-bottom:0.75rem">ℹ️ How it works</h4>
                     <ul
                         style="color:var(--text-muted);font-size:0.85rem;padding-left:1.25rem;display:flex;flex-direction:column;gap:0.5rem">
                         <li>Enter the recipient's registered email address</li>
                         <li>Funds are transferred instantly from your balance</li>
-                        <li>Multi-currency transfers are auto-converted in real-time</li>
-                        <li>🚨 Fraud detection runs on every transfer — large or unusual transactions get flagged</li>
+                        <li><strong>Multi Transfer:</strong> send to up to 10 people simultaneously</li>
+                        <li>🚨 Fraud detection runs on every transfer</li>
                         <li>⛓️ Every transfer gets a unique blockchain transaction hash</li>
                         <li>Daily limit: <strong>$10,000</strong> · Single limit: <strong>$5,000</strong></li>
                     </ul>
