@@ -9,14 +9,12 @@
 </head>
 
 <body>
-    <!-- Mobile hamburger -->
     <button id="hamburger" class="hamburger" aria-label="Menu">
         <span></span><span></span><span></span>
     </button>
     <div id="sidebar-backdrop" class="overlay-backdrop"></div>
 
     <div class="layout">
-        <!-- Sidebar -->
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-logo">
                 <div class="logo-icon">💳</div>
@@ -30,6 +28,7 @@
                 <a href="/transfer.html" class="nav-item"><span class="nav-icon">💸</span> Send Money</a>
                 <a href="/history.html" class="nav-item"><span class="nav-icon">📋</span> History</a>
                 <a href="/profile.html" class="nav-item"><span class="nav-icon">👤</span> Profile</a>
+                <a href="/security.html" class="nav-item"><span class="nav-icon">🔐</span> Security</a>
                 <a href="/admin.html" id="nav-admin" class="nav-item hidden"><span class="nav-icon">⚙️</span> Admin</a>
             </nav>
             <div class="sidebar-footer">
@@ -46,18 +45,50 @@
             </div>
         </aside>
 
-        <!-- Main Content -->
         <main class="main-content">
             <div class="page-header">
                 <h1>Dashboard</h1>
                 <p>Welcome back! Here's your financial overview.</p>
             </div>
 
+            <!-- Security Alert Banner (shown if 2FA is disabled) -->
+            <div id="security-banner" class="hidden"
+                style="background:linear-gradient(135deg,rgba(245,158,11,0.15),rgba(239,68,68,0.1));border:1px solid rgba(245,158,11,0.4);border-radius:12px;padding:1rem 1.25rem;margin-bottom:1.25rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap">
+                <span style="font-size:1.5rem">⚠️</span>
+                <div style="flex:1">
+                    <strong style="color:#f59e0b">Security Tip</strong>
+                    <p style="color:var(--text-muted);font-size:0.85rem;margin:0">Enable Two-Factor Authentication to
+                        protect your account.</p>
+                </div>
+                <a href="/security.html" class="btn btn-sm"
+                    style="background:rgba(245,158,11,0.2);color:#f59e0b;border:1px solid rgba(245,158,11,0.4)">Enable
+                    2FA →</a>
+            </div>
+
             <!-- Balance Card -->
             <div class="balance-card mb-3">
                 <div class="balance-label">Total Balance</div>
-                <div class="balance-amount"><span>₹</span><span id="balance-amount">—</span></div>
-                <div style="margin-top:1rem;display:flex;gap:0.75rem;flex-wrap:wrap">
+                <div class="balance-amount"><span id="balance-currency-symbol">$</span><span
+                        id="balance-amount">—</span></div>
+                <div style="margin-top:0.5rem;display:flex;align-items:center;gap:0.5rem">
+                    <span class="badge badge-info" id="balance-currency-badge">USD</span>
+                    <span id="wallet-address-short"
+                        style="font-size:0.7rem;color:rgba(255,255,255,0.5);font-family:monospace"></span>
+                </div>
+                <!-- Daily Limit Progress -->
+                <div id="daily-limit-section" style="margin-top:1rem">
+                    <div
+                        style="display:flex;justify-content:space-between;font-size:0.75rem;color:rgba(255,255,255,0.6);margin-bottom:0.4rem">
+                        <span>Daily Limit Used</span>
+                        <span id="daily-limit-label">$0 / $10,000</span>
+                    </div>
+                    <div style="height:6px;background:rgba(255,255,255,0.15);border-radius:3px;overflow:hidden">
+                        <div id="daily-limit-bar"
+                            style="height:100%;background:linear-gradient(90deg,#22c55e,#f59e0b);border-radius:3px;width:0%;transition:width 0.6s ease">
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-top:1.25rem;display:flex;gap:0.75rem;flex-wrap:wrap">
                     <button id="open-deposit" class="btn btn-primary btn-sm">＋ Add Money</button>
                     <a href="/transfer.html" class="btn btn-secondary btn-sm">💸 Send Money</a>
                 </div>
@@ -71,12 +102,12 @@
                 <a href="/history.html" class="quick-action-btn">
                     <span class="icon">📋</span> History
                 </a>
+                <a href="/security.html" class="quick-action-btn">
+                    <span class="icon">🔐</span> Security
+                </a>
                 <button id="open-deposit" class="quick-action-btn" style="border:none;background:none">
                     <span class="icon">💰</span> Deposit
                 </button>
-                <a href="/profile.html" class="quick-action-btn">
-                    <span class="icon">👤</span> Profile
-                </a>
             </div>
 
             <!-- Recent Transactions -->
@@ -92,12 +123,13 @@
                                 <th>Date</th>
                                 <th>To / From</th>
                                 <th>Amount</th>
+                                <th>TX Hash</th>
                                 <th>Status</th>
                             </tr>
                         </thead>
                         <tbody id="recent-tbody">
                             <tr>
-                                <td colspan="4" class="text-center"><span class="spinner"></span></td>
+                                <td colspan="5" class="text-center"><span class="spinner"></span></td>
                             </tr>
                         </tbody>
                     </table>
@@ -117,7 +149,7 @@
             </div>
             <form id="deposit-form">
                 <div class="form-group">
-                    <label for="deposit-amount">Amount (₹)</label>
+                    <label for="deposit-amount">Amount</label>
                     <input type="number" id="deposit-amount" placeholder="e.g. 500" min="1" required />
                 </div>
                 <button type="submit" class="btn btn-primary btn-full">Deposit</button>

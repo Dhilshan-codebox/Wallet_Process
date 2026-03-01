@@ -28,6 +28,7 @@
                 <a href="/transfer.html" class="nav-item active"><span class="nav-icon">💸</span> Send Money</a>
                 <a href="/history.html" class="nav-item"><span class="nav-icon">📋</span> History</a>
                 <a href="/profile.html" class="nav-item"><span class="nav-icon">👤</span> Profile</a>
+                <a href="/security.html" class="nav-item"><span class="nav-icon">🔐</span> Security</a>
                 <a href="/admin.html" id="nav-admin" class="nav-item hidden"><span class="nav-icon">⚙️</span> Admin</a>
             </nav>
             <div class="sidebar-footer">
@@ -50,18 +51,64 @@
                 <p>Transfer funds to any PayWallet user instantly.</p>
             </div>
 
-            <div style="max-width:540px">
+            <div style="max-width:560px;display:flex;flex-direction:column;gap:1.25rem">
+
+                <!-- Spending Limit Status -->
+                <div class="card"
+                    style="padding:1rem 1.25rem;border-color:rgba(99,102,241,0.3);background:rgba(99,102,241,0.06)">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.6rem">
+                        <span style="font-size:0.82rem;color:var(--text-muted);font-weight:600">Daily Spending
+                            Limit</span>
+                        <span id="limit-label" style="font-size:0.82rem;color:var(--text-secondary)">Loading…</span>
+                    </div>
+                    <div style="height:8px;background:var(--border);border-radius:4px;overflow:hidden">
+                        <div id="limit-bar"
+                            style="height:100%;background:linear-gradient(90deg,#6366f1,#a78bfa);border-radius:4px;width:0%;transition:width 0.8s ease">
+                        </div>
+                    </div>
+                    <div
+                        style="display:flex;justify-content:space-between;margin-top:0.4rem;font-size:0.75rem;color:var(--text-muted)">
+                        <span>Single limit: <strong id="single-limit-label">—</strong></span>
+                        <span id="limit-pct">0%</span>
+                    </div>
+                </div>
+
                 <!-- Transfer Form -->
-                <div class="card mb-2" id="transfer-card">
+                <div class="card" id="transfer-card">
+                    <h3 class="mb-2">Transfer Details</h3>
                     <form id="transfer-form" novalidate>
                         <div class="form-group">
                             <label for="receiver-email">Recipient Email</label>
                             <input type="email" id="receiver-email" placeholder="recipient@example.com" required />
                         </div>
-                        <div class="form-group">
-                            <label for="transfer-amount">Amount (₹)</label>
-                            <input type="number" id="transfer-amount" placeholder="e.g. 500" min="1" step="0.01"
-                                required />
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label for="transfer-amount">Amount</label>
+                                <input type="number" id="transfer-amount" placeholder="e.g. 500" min="1" step="0.01"
+                                    required />
+                            </div>
+                            <div class="form-group">
+                                <label for="transfer-currency">Your Currency</label>
+                                <select id="transfer-currency"
+                                    style="width:100%;padding:0.65rem 0.9rem;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-size:0.9rem">
+                                    <option value="USD">🇺🇸 USD</option>
+                                    <option value="EUR">🇪🇺 EUR</option>
+                                    <option value="GBP">🇬🇧 GBP</option>
+                                    <option value="INR">🇮🇳 INR</option>
+                                    <option value="JPY">🇯🇵 JPY</option>
+                                    <option value="AUD">🇦🇺 AUD</option>
+                                    <option value="CAD">🇨🇦 CAD</option>
+                                    <option value="SGD">🇸🇬 SGD</option>
+                                    <option value="CHF">🇨🇭 CHF</option>
+                                    <option value="CNY">🇨🇳 CNY</option>
+                                </select>
+                            </div>
+                        </div>
+                        <!-- Live currency conversion preview -->
+                        <div id="conversion-preview" class="hidden"
+                            style="background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.25);border-radius:8px;padding:0.75rem 1rem;margin-bottom:1rem;font-size:0.85rem;color:var(--text-muted)">
+                            💱 Recipient will receive: <strong id="converted-preview"
+                                style="color:var(--accent-light)">—</strong>
                         </div>
                         <div class="form-group">
                             <label for="transfer-desc">Description <span
@@ -73,7 +120,7 @@
                     </form>
                 </div>
 
-                <!-- Success Card (hidden until transfer succeeds) -->
+                <!-- Success Card -->
                 <div class="card hidden" id="success-card"
                     style="text-align:center;padding:2.5rem;border-color:rgba(34,197,94,0.3);background:rgba(34,197,94,0.08)">
                     <div style="font-size:3.5rem;margin-bottom:1rem">🎉</div>
@@ -81,21 +128,28 @@
                     <p class="mt-1">You sent <strong id="success-amount" style="color:var(--text-primary)"></strong></p>
                     <p class="text-sm text-muted mt-1">to <span id="success-to"
                             style="color:var(--text-secondary)"></span></p>
+                    <!-- Blockchain hash -->
+                    <div id="blockchain-badge" class="hidden"
+                        style="margin-top:1rem;padding:0.6rem 1rem;background:rgba(99,102,241,0.12);border-radius:8px;font-size:0.72rem;font-family:monospace;color:var(--accent-light);word-break:break-all">
+                        ⛓️ TX: <span id="blockchain-hash-display"></span>
+                    </div>
                     <div style="display:flex;gap:1rem;justify-content:center;margin-top:1.5rem">
                         <button id="new-transfer-btn" class="btn btn-primary">Send Again</button>
                         <a href="/history.html" class="btn btn-secondary">View History</a>
                     </div>
                 </div>
 
-                <!-- Info box -->
-                <div class="card"
-                    style="border-color:rgba(99,102,241,0.25);background:rgba(99,102,241,0.06);margin-top:1rem">
-                    <h4 style="color:var(--accent-light);margin-bottom:0.5rem">ℹ️ How it works</h4>
+                <!-- Info / How it works -->
+                <div class="card" style="border-color:rgba(99,102,241,0.25);background:rgba(99,102,241,0.06)">
+                    <h4 style="color:var(--accent-light);margin-bottom:0.75rem">ℹ️ How it works</h4>
                     <ul
-                        style="color:var(--text-muted);font-size:0.85rem;padding-left:1.25rem;display:flex;flex-direction:column;gap:0.4rem">
-                        <li>Enter the recipient's registered email</li>
+                        style="color:var(--text-muted);font-size:0.85rem;padding-left:1.25rem;display:flex;flex-direction:column;gap:0.5rem">
+                        <li>Enter the recipient's registered email address</li>
                         <li>Funds are transferred instantly from your balance</li>
-                        <li>Both parties receive the transaction record</li>
+                        <li>Multi-currency transfers are auto-converted in real-time</li>
+                        <li>🚨 Fraud detection runs on every transfer — large or unusual transactions get flagged</li>
+                        <li>⛓️ Every transfer gets a unique blockchain transaction hash</li>
+                        <li>Daily limit: <strong>$10,000</strong> · Single limit: <strong>$5,000</strong></li>
                     </ul>
                 </div>
             </div>

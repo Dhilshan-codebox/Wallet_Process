@@ -28,6 +28,7 @@
                 <a href="/transfer.html" class="nav-item"><span class="nav-icon">💸</span> Send Money</a>
                 <a href="/history.html" class="nav-item"><span class="nav-icon">📋</span> History</a>
                 <a href="/profile.html" class="nav-item"><span class="nav-icon">👤</span> Profile</a>
+                <a href="/security.html" class="nav-item"><span class="nav-icon">🔐</span> Security</a>
                 <a href="/admin.html" id="nav-admin" class="nav-item active"><span class="nav-icon">⚙️</span> Admin</a>
             </nav>
             <div class="sidebar-footer">
@@ -47,7 +48,7 @@
         <main class="main-content">
             <div class="page-header">
                 <h1>Admin Dashboard ⚙️</h1>
-                <p>System overview, user management and all transactions.</p>
+                <p>System overview, user management, fraud alerts and all transactions.</p>
             </div>
 
             <!-- System Stats -->
@@ -67,10 +68,38 @@
                     <div class="stat-label">Total Volume</div>
                     <div class="stat-value amber" id="stat-volume">—</div>
                 </div>
-                <div class="stat-card indigo">
-                    <div class="stat-icon">✅</div>
-                    <div class="stat-label">Active Users</div>
-                    <div class="stat-value indigo" id="stat-active">—</div>
+                <div class="stat-card" style="border-color:rgba(239,68,68,0.3);background:rgba(239,68,68,0.05)">
+                    <div class="stat-icon">🚨</div>
+                    <div class="stat-label">Open Fraud Alerts</div>
+                    <div class="stat-value" style="color:#ef4444" id="stat-fraud">—</div>
+                </div>
+            </div>
+
+            <!-- 🚨 Fraud Alerts Panel -->
+            <div class="card mb-3" style="border-color:rgba(239,68,68,0.3)">
+                <div class="flex items-center justify-between mb-2">
+                    <h3>🚨 Fraud Alerts</h3>
+                    <span id="fraud-alert-count" class="badge badge-danger">Loading…</span>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Type</th>
+                                <th>Amount</th>
+                                <th>Severity</th>
+                                <th>Details</th>
+                                <th>When</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="fraud-tbody">
+                            <tr>
+                                <td colspan="7" class="text-center"><span class="spinner"></span></td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
@@ -83,6 +112,8 @@
                             <tr>
                                 <th>ID</th>
                                 <th>User</th>
+                                <th>Currency</th>
+                                <th>2FA</th>
                                 <th>Role</th>
                                 <th>Balance</th>
                                 <th>Actions</th>
@@ -90,7 +121,7 @@
                         </thead>
                         <tbody id="users-tbody">
                             <tr>
-                                <td colspan="5" class="text-center"><span class="spinner"></span></td>
+                                <td colspan="7" class="text-center"><span class="spinner"></span></td>
                             </tr>
                         </tbody>
                     </table>
@@ -107,13 +138,14 @@
                                 <th>ID</th>
                                 <th>Sender → Receiver</th>
                                 <th>Amount</th>
+                                <th>TX Hash</th>
                                 <th>Status</th>
                                 <th>Date</th>
                             </tr>
                         </thead>
                         <tbody id="all-txns-tbody">
                             <tr>
-                                <td colspan="5" class="text-center"><span class="spinner"></span></td>
+                                <td colspan="6" class="text-center"><span class="spinner"></span></td>
                             </tr>
                         </tbody>
                     </table>

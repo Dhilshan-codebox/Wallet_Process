@@ -1,83 +1,104 @@
-import {
-    apiFetch, requireAuth, populateSidebar, initMobileMenu,
-    formatCurrency, formatDate, showToast
-} from './api.js';
+import { apiFetch, getToken, getUser, requireAuth, showToast, populateSidebar, initMobileMenu } from './api.js';
 
 requireAuth();
 populateSidebar();
 initMobileMenu();
 
-async function loadDashboard() {
-    // ── Balance ──
-    try {
-        const balance = await apiFetch('/api/wallet/balance');
-        document.getElementById('balance-amount').textContent = formatCurrency(balance);
-    } catch {
-        document.getElementById('balance-amount').textContent = '—';
-    }
+const API_BASE = 'http://localhost:8081';
+const user = getUser() || {};
+const SYMBOLS = { USD: '$', EUR: '€', GBP: '£', JPY: '¥', INR: '₹', CAD: 'C$', AUD: 'A$', SGD: 'S$', CHF: 'Fr', CNY: '¥' };
+const currency = user.currency || 'USD';
+const sym = SYMBOLS[currency] || '$';
+const wallet = user.walletAddress || '';
 
-    // ── Recent transactions ──
+// ─── Balance card ─────────────────────────────────────────────────────────────
+const balance = parseFloat(user.balance || 0);
+document.getElementById('balance-amount').textContent =
+    balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+document.getElementById('balance-currency-symbol').textContent = sym;
+document.getElementById('balance-currency-badge').textContent = currency;
+
+if (wallet) {
+    document.getElementById('wallet-address-short').textContent = wallet.substring(0, 10) + '…';
+}
+
+// ─── 2FA security banner ──────────────────────────────────────────────────────
+if (!user.twoFactorEnabled) {
+    document.getElementById('security-banner').classList.remove('hidden');
+}
+
+// ─── Daily limit bar (static defaults — live from profile if needed) ──────────
+const dailyLimit = 10000;
+const dailySpent = 0;
+const pct = Math.min((dailySpent / dailyLimit) * 100, 100);
+document.getElementById('daily-limit-bar').style.width = pct + '%';
+document.getElementById('daily-limit-label').textContent =
+    `${sym}${dailySpent.toLocaleString()} / ${sym}${dailyLimit.toLocaleString()}`;
+
+// ─── Recent Transactions ──────────────────────────────────────────────────────
+async function loadRecent() {
     try {
-        const txns = await apiFetch('/api/transfer/history');
+        const list = await apiFetch('/api/transfer/history');
         const tbody = document.getElementById('recent-tbody');
-        const recent = txns.slice(0, 5);
-        if (recent.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="4">
-        <div class="empty-state"><div class="empty-icon">📭</div><p>No transactions yet</p></div>
-      </td></tr>`;
+
+        if (!Array.isArray(list) || list.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">No transactions yet.</td></tr>';
             return;
         }
-        const user = JSON.parse(localStorage.getItem('wallet_user') || '{}');
-        tbody.innerHTML = recent.map(t => {
-            const isOut = t.senderEmail === user.email;
-            const counterpart = isOut ? t.receiverName || t.receiverEmail : t.senderName || t.senderEmail;
-            const sign = isOut ? '-' : '+';
-            const cls = isOut ? 'text-danger' : 'text-success';
+
+        tbody.innerHTML = list.slice(0, 8).map(t => {
+            const sent = t.senderEmail === user.email;
+            const amount = `${sent ? '-' : '+'}${sym}${Number(t.amount).toLocaleString()}`;
+            const color = sent ? 'var(--danger)' : 'var(--success)';
+            const peer = sent ? (t.receiverName || t.receiverEmail) : (t.senderName || t.senderEmail);
+            const dir = sent ? `→ ${peer}` : `← ${peer}`;
+            const date = new Date(t.transactionDate).toLocaleDateString();
+            const hash = t.blockchainHash
+                ? `<span style="font-family:monospace;font-size:0.7rem;color:var(--accent-light)" title="${t.blockchainHash}">${t.blockchainHash.substring(0, 10)}…</span>`
+                : '—';
+            const badge = t.status === 'SUCCESS'
+                ? '<span class="badge badge-success">Success</span>'
+                : `<span class="badge badge-danger">${t.status}</span>`;
             return `<tr>
-        <td>${formatDate(t.transactionDate)}</td>
-        <td>${counterpart || '—'}</td>
-        <td class="${cls}">${sign}${formatCurrency(t.amount)}</td>
-        <td><span class="badge ${statusBadge(t.status)}">${t.status}</span></td>
-      </tr>`;
+                <td>${date}</td>
+                <td>${dir}</td>
+                <td style="color:${color};font-weight:600">${amount}</td>
+                <td>${hash}</td>
+                <td>${badge}</td>
+            </tr>`;
         }).join('');
-    } catch {
-        /* silent */
+    } catch (err) {
+        console.error('Failed to load transactions:', err);
     }
 }
 
-function statusBadge(s) {
-    const map = { COMPLETED: 'badge-success', PENDING: 'badge-warning', CANCELLED: 'badge-danger', FAILED: 'badge-danger' };
-    return map[s?.toUpperCase()] || 'badge-info';
-}
+loadRecent();
 
-// ── Deposit modal ──
-const depositModal = document.getElementById('deposit-modal');
-document.getElementById('open-deposit')?.addEventListener('click', () => depositModal.classList.remove('hidden'));
-document.getElementById('close-deposit')?.addEventListener('click', () => depositModal.classList.add('hidden'));
-
+// ─── Deposit modal ────────────────────────────────────────────────────────────
+document.querySelectorAll('#open-deposit').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.getElementById('deposit-modal').classList.remove('hidden');
+    });
+});
+document.getElementById('close-deposit')?.addEventListener('click', () => {
+    document.getElementById('deposit-modal').classList.add('hidden');
+});
 document.getElementById('deposit-form')?.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const btn = e.target.querySelector('button[type=submit]');
     const amount = parseFloat(document.getElementById('deposit-amount').value);
     if (!amount || amount <= 0) { showToast('Enter a valid amount', 'error'); return; }
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner"></span>';
+
     try {
-        const user = JSON.parse(localStorage.getItem('wallet_user') || '{}');
         await apiFetch('/api/wallet/deposit', {
             method: 'POST',
-            body: JSON.stringify({ email: user.email, amount }),
+            body: JSON.stringify({ email: user.email, amount })
         });
-        showToast(`₹${amount} deposited successfully! 💰`, 'success');
-        depositModal.classList.add('hidden');
-        document.getElementById('deposit-amount').value = '';
-        loadDashboard();
+        showToast(`Deposited ${sym}${amount} ✅`, 'success');
+        document.getElementById('deposit-modal').classList.add('hidden');
+        const newBal = balance + amount;
+        document.getElementById('balance-amount').textContent =
+            newBal.toLocaleString(undefined, { minimumFractionDigits: 2 });
     } catch (err) {
-        showToast(err.message, 'error');
-    } finally {
-        btn.disabled = false;
-        btn.innerHTML = 'Deposit';
+        showToast(err.message || 'Deposit failed', 'error');
     }
 });
-
-loadDashboard();

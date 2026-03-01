@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -7,6 +8,7 @@
   <meta name="description" content="Sign in to your PayWallet digital wallet account" />
   <link rel="stylesheet" href="/css/styles.css" />
 </head>
+
 <body>
   <div class="auth-page">
     <div class="auth-card fade-in-up">
@@ -16,6 +18,7 @@
         <p>Sign in to your wallet</p>
       </div>
 
+      <!-- Step 1: Login Form -->
       <form id="login-form" novalidate>
         <div class="form-group">
           <label for="login-email">Email Address</label>
@@ -25,8 +28,32 @@
           <label for="login-password">Password</label>
           <input type="password" id="login-password" placeholder="••••••••" required autocomplete="current-password" />
         </div>
-        <button type="submit" class="btn btn-primary btn-full" id="login-btn">Sign In</button>
+        <button type="submit" class="btn btn-primary btn-full" id="login-btn">Sign In 🔐</button>
       </form>
+
+      <!-- Step 2: 2FA OTP Panel (hidden initially) -->
+      <div id="otp-panel" style="display:none">
+        <div style="text-align:center;margin-bottom:1.5rem">
+          <div style="font-size:2.5rem;margin-bottom:0.5rem">📱</div>
+          <h3 style="margin-bottom:0.25rem">Two-Factor Verification</h3>
+          <p style="color:var(--text-muted);font-size:0.875rem">A 6-digit code was sent to your email. Enter it below.
+          </p>
+        </div>
+        <form id="otp-form" novalidate>
+          <div class="form-group">
+            <label for="otp-input">Verification Code</label>
+            <input type="text" id="otp-input" placeholder="123456" maxlength="6"
+              style="text-align:center;font-size:1.5rem;letter-spacing:0.5rem;font-weight:700" required
+              autocomplete="one-time-code" />
+          </div>
+          <button type="submit" class="btn btn-primary btn-full" id="otp-btn">Verify & Sign In ✓</button>
+          <button type="button" id="resend-otp-btn" class="btn btn-secondary btn-full" style="margin-top:0.5rem">Resend
+            Code</button>
+        </form>
+        <button id="back-to-login"
+          style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:0.85rem;margin-top:1rem;display:block;text-align:center;width:100%">←
+          Back to login</button>
+      </div>
 
       <p class="auth-divider">Don't have an account? <a href="/register.html">Create one</a></p>
     </div>
@@ -35,4 +62,5 @@
   <div id="toast-container"></div>
   <script type="module" src="/js/auth.js"></script>
 </body>
+
 </html>

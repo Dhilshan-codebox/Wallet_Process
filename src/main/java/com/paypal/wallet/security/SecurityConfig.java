@@ -30,6 +30,9 @@ public class SecurityConfig {
                         .requestMatchers("/auth/**").permitAll()
                         // Allow static web resources without authentication
                         .requestMatchers("/", "/*.html", "/css/**", "/js/**", "/images/**", "/favicon.ico").permitAll()
+                        // New endpoints: 2FA verify (pre-auth) and currency rates (public)
+                        .requestMatchers("/auth/2fa/verify", "/auth/2fa/resend").permitAll()
+                        .requestMatchers("/api/currency/**").authenticated()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/**").authenticated()
                         .anyRequest().permitAll())
