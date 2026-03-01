@@ -9,13 +9,13 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/user")
 public class UserController {
-    
+
     private final UserService userService;
-    
+
     public UserController(UserService userService) {
         this.userService = userService;
     }
-    
+
     @GetMapping("/profile")
     public ResponseEntity<UserProfileDTO> getProfile() {
         try {
@@ -25,7 +25,18 @@ public class UserController {
             return ResponseEntity.badRequest().body(null);
         }
     }
-    
+
+    // ── Find any user by email (used by transfer.js to resolve receiver ID) ──
+    @GetMapping("/find")
+    public ResponseEntity<UserProfileDTO> findByEmail(@RequestParam String email) {
+        try {
+            UserProfileDTO user = userService.findByEmail(email);
+            return ResponseEntity.ok(user);
+        } catch (Exception e) {
+            return ResponseEntity.status(404).body(null);
+        }
+    }
+
     @PutMapping("/profile")
     public ResponseEntity<String> updateProfile(@RequestBody UpdateProfileRequest request) {
         try {
