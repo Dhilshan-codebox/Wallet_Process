@@ -91,6 +91,7 @@ public class AdminService {
                 transaction.getAmount(),
                 transaction.getDescription(),
                 transaction.getStatus(),
-                transaction.getTransactionDate());
+                transaction.getTransactionDate(),
+                transaction.getBlockchainHash());
     }
 }
