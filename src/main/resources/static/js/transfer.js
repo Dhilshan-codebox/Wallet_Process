@@ -4,7 +4,7 @@ requireAuth();
 populateSidebar();
 initMobileMenu();
 
-const API_BASE = 'http://localhost:8081';
+const API_BASE = 'http://localhost:8080';
 const user = getUser() || {};
 const SYMBOLS = { USD: '$', EUR: '€', GBP: '£', JPY: '¥', INR: '₹', CAD: 'C$', AUD: 'A$', SGD: 'S$', CHF: 'Fr', CNY: '¥' };
 const userCurrency = user.currency || 'USD';
@@ -79,16 +79,14 @@ document.getElementById('transfer-form')?.addEventListener('submit', async (e) =
         const profile = await apiFetch('/api/user/profile');
         const recData = await apiFetch(`/api/user/find?email=${encodeURIComponent(receiverEmail)}`);
 
-        const res = await fetch(`${API_BASE}/api/transfer`, {
+        const transferResult = await apiFetch('/api/transfer', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('wallet_token')}`
-            },
             body: JSON.stringify({ senderId: profile.id, receiverId: recData.id, amount, description })
         });
+        const res = { ok: true };
+        const text = typeof transferResult === 'string' ? transferResult : JSON.stringify(transferResult);
 
-        const text = await res.text();
+        // text already extracted above via apiFetch
 
         if (!res.ok || text.toLowerCase().includes('blocked') || text.toLowerCase().includes('insufficient')) {
             showToast(text, 'error'); return;
